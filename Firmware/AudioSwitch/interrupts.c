@@ -39,9 +39,12 @@ ISR(PORTB_INT0_vect, ISR_NAKED)
       
       app_read_REG_DI_STATE();
       
-      if (reg_di_state != app_regs.REG_DI_STATE)
+      if (app_regs.REG_EVNT_ENABLE & B_EVT_DI_STATE)
       {
-         core_func_send_event(ADD_REG_DI_STATE, true);
+         if (reg_di_state != app_regs.REG_DI_STATE)
+         {
+            core_func_send_event(ADD_REG_DI_STATE, true);
+         }
       }
    }
    else
@@ -63,10 +66,13 @@ ISR(PORTC_INT0_vect, ISR_NAKED)
       
       app_read_REG_DI_STATE();
       
-      if (reg_di_state != app_regs.REG_DI_STATE)
+      if (app_regs.REG_EVNT_ENABLE & B_EVT_DI_STATE)
       {
-         core_func_send_event(ADD_REG_DI_STATE, true);
-      }
+         if (reg_di_state != app_regs.REG_DI_STATE)
+         {
+            core_func_send_event(ADD_REG_DI_STATE, true);
+         }
+      }         
    }
    else
    {

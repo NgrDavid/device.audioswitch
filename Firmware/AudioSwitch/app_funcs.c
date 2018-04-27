@@ -111,7 +111,10 @@ void update_outputs(bool update_DO0, bool from_address_interrupt)
          *(((uint8_t*)(&app_regs.REG_CHANNEL_SEL)) + 0) = PORTA_IN;
          *(((uint8_t*)(&app_regs.REG_CHANNEL_SEL)) + 1) = PORTD_IN;
          
-         core_func_send_event(ADD_REG_CHANNEL_SEL, true);
+         if (app_regs.REG_EVNT_ENABLE & B_EVT_OUTPUT_CHANNEL)
+         {
+            core_func_send_event(ADD_REG_CHANNEL_SEL, true);
+         }
          
          app_regs.REG_CHANNEL_SEL = temporary;
       }
