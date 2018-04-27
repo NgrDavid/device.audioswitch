@@ -203,6 +203,5 @@ typedef struct
 #define GM_DO_TGL_WHEN_CH_SEL_CHANGE       (1<<0)       // 
 #define B_EVT_OUTPUT_CHANNEL               (1<<0)       // Event of register CHANNEL_SEL
 #define B_EVT_DI_STATE                     (1<<1)       // Event of register DI_STATE
-#define B_EVT_DO                           (1<<2)       // Event of register DO
 
 #endif /* _APP_REGS_H_ */
