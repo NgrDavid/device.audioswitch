@@ -71,7 +71,7 @@ void core_callback_reset_registers(void)
    app_regs.REG_DO = 0;
    app_regs.REG_DI4_CONF = GM_DI4_ADDRESS;
    app_regs.REG_DO0_CONF = GM_DO_TGL_WHEN_CH_SEL_CHANGE;
-   app_regs.REG_EVNT_ENABLE = B_EVT_OUTPUT_CHANNEL | B_EVT_DI_STATE | B_EVT_DO;
+   app_regs.REG_EVNT_ENABLE = B_EVT_OUTPUT_CHANNEL | B_EVT_DI_STATE;
 }
 
 extern void update_outputs(bool update_DO0, bool from_address_interrupt);

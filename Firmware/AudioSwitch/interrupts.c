@@ -35,8 +35,14 @@ ISR(PORTB_INT0_vect, ISR_NAKED)
 {
    if (app_regs.REG_SOURCE == GM_USB)
    {
+      uint8_t reg_di_state = app_regs.REG_DI_STATE;
+      
       app_read_REG_DI_STATE();
-      core_func_send_event(ADD_REG_DI_STATE, true);
+      
+      if (reg_di_state != app_regs.REG_DI_STATE)
+      {
+         core_func_send_event(ADD_REG_DI_STATE, true);
+      }
    }
    else
    {
@@ -53,8 +59,14 @@ ISR(PORTC_INT0_vect, ISR_NAKED)
 {
    if (app_regs.REG_DI4_CONF == GM_DI4_DIGITAL)
    {
+      uint8_t reg_di_state = app_regs.REG_DI_STATE;
+      
       app_read_REG_DI_STATE();
-      core_func_send_event(ADD_REG_DI_STATE, true);
+      
+      if (reg_di_state != app_regs.REG_DI_STATE)
+      {
+         core_func_send_event(ADD_REG_DI_STATE, true);
+      }
    }
    else
    {
