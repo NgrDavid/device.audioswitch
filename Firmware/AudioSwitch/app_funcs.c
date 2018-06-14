@@ -43,12 +43,7 @@ void update_outputs(bool update_DO0, bool from_address_interrupt)
    if (app_regs.REG_SOURCE == GM_USB)
    {
       if ((app_regs.REG_DI4_CONF == GM_DI4_DIGITAL) | ((app_regs.REG_DI4_CONF == GM_DI4_ADDRESS) && ((read_ADD ? true : false) == (read_IN4 ? true : false))))
-      {
-         PORTA_OUT = 0;
-         PORTD_OUT = 0;
-         
-         _delay_us(100);
-         
+      {         
          PORTA_OUT = *(((uint8_t*)(&app_regs.REG_CHANNEL_SEL)) + 0);
          PORTD_OUT = *(((uint8_t*)(&app_regs.REG_CHANNEL_SEL)) + 1);
       }
@@ -62,19 +57,16 @@ void update_outputs(bool update_DO0, bool from_address_interrupt)
    {
       if ((app_regs.REG_DI4_CONF == GM_DI4_DIGITAL) | ((app_regs.REG_DI4_CONF == GM_DI4_ADDRESS) && ((read_ADD ? true : false) == (read_IN4 ? true : false))))
       {
-         PORTA_OUT = 0;
-         PORTD_OUT = 0;
-         
-         _delay_us(100);
-         
          uint8_t channel = PORTB_IN & 0x0F;
          
          if (channel <= 7)
          {
+            PORTD_OUT = 0;
             PORTA_OUT = (1 << channel);
          }
          else
          {
+            PORTA_OUT = 0;
             PORTD_OUT = (1 << (channel - 8));
          }
       }
