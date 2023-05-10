@@ -63,13 +63,13 @@ bitMasks:
       DI2: 0x4
       DI3: 0x8
       DI4: 0x10
-  LoadCellEvents:
+  AudioSwitchEvents:
     description: The events that can be enabled/disabled.
     bits:
       EnabledChannels: 0x1
       DigitalInputs: 0x2
 groupMasks:
-  SourceConfig:
+  SourceControlConfig:
     description: Available configurations to control the board channels (host computer or digital inputs).
     values:
       USB: 0
