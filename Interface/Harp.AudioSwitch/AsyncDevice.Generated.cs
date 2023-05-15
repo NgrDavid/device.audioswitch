@@ -45,39 +45,39 @@ namespace Harp.AudioSwitch
         }
 
         /// <summary>
-        /// Asynchronously reads the contents of the SourceControl register.
+        /// Asynchronously reads the contents of the ControlMode register.
         /// </summary>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the register payload.
         /// </returns>
-        public async Task<SourceControlConfig> ReadSourceControlAsync()
+        public async Task<ControlSource> ReadControlModeAsync()
         {
-            var reply = await CommandAsync(HarpCommand.ReadByte(SourceControl.Address));
-            return SourceControl.GetPayload(reply);
+            var reply = await CommandAsync(HarpCommand.ReadByte(ControlMode.Address));
+            return ControlMode.GetPayload(reply);
         }
 
         /// <summary>
-        /// Asynchronously reads the timestamped contents of the SourceControl register.
+        /// Asynchronously reads the timestamped contents of the ControlMode register.
         /// </summary>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the timestamped register payload.
         /// </returns>
-        public async Task<Timestamped<SourceControlConfig>> ReadTimestampedSourceControlAsync()
+        public async Task<Timestamped<ControlSource>> ReadTimestampedControlModeAsync()
         {
-            var reply = await CommandAsync(HarpCommand.ReadByte(SourceControl.Address));
-            return SourceControl.GetTimestampedPayload(reply);
+            var reply = await CommandAsync(HarpCommand.ReadByte(ControlMode.Address));
+            return ControlMode.GetTimestampedPayload(reply);
         }
 
         /// <summary>
-        /// Asynchronously writes a value to the SourceControl register.
+        /// Asynchronously writes a value to the ControlMode register.
         /// </summary>
         /// <param name="value">The value to be stored in the register.</param>
         /// <returns>The task object representing the asynchronous write operation.</returns>
-        public async Task WriteSourceControlAsync(SourceControlConfig value)
+        public async Task WriteControlModeAsync(ControlSource value)
         {
-            var request = SourceControl.FromPayload(MessageType.Write, value);
+            var request = ControlMode.FromPayload(MessageType.Write, value);
             await CommandAsync(request);
         }
 
@@ -119,29 +119,29 @@ namespace Harp.AudioSwitch
         }
 
         /// <summary>
-        /// Asynchronously reads the contents of the DIState register.
+        /// Asynchronously reads the contents of the DigitalInputsState register.
         /// </summary>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the register payload.
         /// </returns>
-        public async Task<DigitalInputs> ReadDIStateAsync()
+        public async Task<DigitalInputs> ReadDigitalInputsStateAsync()
         {
-            var reply = await CommandAsync(HarpCommand.ReadByte(DIState.Address));
-            return DIState.GetPayload(reply);
+            var reply = await CommandAsync(HarpCommand.ReadByte(DigitalInputsState.Address));
+            return DigitalInputsState.GetPayload(reply);
         }
 
         /// <summary>
-        /// Asynchronously reads the timestamped contents of the DIState register.
+        /// Asynchronously reads the timestamped contents of the DigitalInputsState register.
         /// </summary>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the timestamped register payload.
         /// </returns>
-        public async Task<Timestamped<DigitalInputs>> ReadTimestampedDIStateAsync()
+        public async Task<Timestamped<DigitalInputs>> ReadTimestampedDigitalInputsStateAsync()
         {
-            var reply = await CommandAsync(HarpCommand.ReadByte(DIState.Address));
-            return DIState.GetTimestampedPayload(reply);
+            var reply = await CommandAsync(HarpCommand.ReadByte(DigitalInputsState.Address));
+            return DigitalInputsState.GetTimestampedPayload(reply);
         }
 
         /// <summary>
