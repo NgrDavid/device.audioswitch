@@ -12,13 +12,13 @@ registers:
     access: Write
     type: U8
     maskType: ControlSource
-    description: Configures the source to enable the board channels. 
+    description: Configures the source to enable the board channels.
   EnableChannels:
     address: 33
     access: [Write, Event]
     type: U16
     description: Enables the output channels using a bitmask format. An event will be emitted when any of the channels are enabled. 
-  DigitalInputsState:
+  DigitalInputState:
     address: 34
     access: Event
     type: U8
@@ -28,14 +28,14 @@ registers:
     address: 35
     access: Write
     type: U8
-    maskType: DigitalState
+    maskType: EnableFlag
     description: Status of the digital output pin 0.
-  Reserved0: 
+  Reserved0: &reserved
     address: 36
     access: Read
     visibility: private
     type: U8
-    description: Reserved
+    description: Reserved for future use.
   DI4Trigger:
     address: 37
     access: Write
@@ -74,11 +74,6 @@ groupMasks:
     values:
       USB: 0
       DigitalInputs: 1
-  DigitalState:
-    description: The state of a digital pin.
-    values:
-      Low: 0
-      High: 1
   DI4TriggerConfig:
     description: Available configurations for DI4. Can be used as digital input or as the MSB of the switches address when the SourceControl is configured as DigitalInputs.
     values:
