@@ -12,13 +12,14 @@ registers:
     access: Write
     type: U8
     maskType: ControlSource
-    description: Configures the source to enable the board channels. 
+    description: Configures the source to enable the board channels.
   EnableChannels:
     address: 33
     access: [Write, Event]
     type: U16
-    description: Enables the output channels using a bitmask format. An event will be emitted when any of the channels are enabled. 
-  DigitalInputsState:
+    maskType: AudioChannels
+    description: Enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled. 
+  DigitalInputState:
     address: 34
     access: Event
     type: U8
@@ -28,14 +29,14 @@ registers:
     address: 35
     access: Write
     type: U8
-    maskType: DigitalState
+    maskType: EnableFlag
     description: Status of the digital output pin 0.
-  Reserved0: 
+  Reserved0: &reserved
     address: 36
     access: Read
     visibility: private
     type: U8
-    description: Reserved
+    description: Reserved for future use.
   DI4Trigger:
     address: 37
     access: Write
@@ -55,6 +56,25 @@ registers:
     maskType: AudioSwitchEvents
     description: Specifies the active events in the device.
 bitMasks:
+  AudioChannels:
+    description: Specifies the available audio output channels.
+    bits:
+      Channel0: 0x1
+      Channel1: 0x2
+      Channel2: 0x4
+      Channel3: 0x8
+      Channel4: 0x10
+      Channel5: 0x20
+      Channel6: 0x40
+      Channel7: 0x80
+      Channel8: 0x100
+      Channel9: 0x200
+      Channel10: 0x400
+      Channel11: 0x800
+      Channel12: 0x1000
+      Channel13: 0x2000
+      Channel14: 0x4000
+      Channel15: 0x8000
   DigitalInputs:
     description: Specifies the state of the digital input pins.
     bits:
@@ -74,11 +94,6 @@ groupMasks:
     values:
       USB: 0
       DigitalInputs: 1
-  DigitalState:
-    description: The state of a digital pin.
-    values:
-      Low: 0
-      High: 1
   DI4TriggerConfig:
     description: Available configurations for DI4. Can be used as digital input or as the MSB of the switches address when the SourceControl is configured as DigitalInputs.
     values:
