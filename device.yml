@@ -17,8 +17,8 @@ registers:
     address: 33
     access: [Write, Event]
     type: U16
-    maskType: Channels
-    description: Enables the output channels using a bitmask format. An event will be emitted when any of the channels are enabled. 
+    maskType: AudioChannels
+    description: Enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled. 
   DigitalInputState:
     address: 34
     access: Event
@@ -56,8 +56,8 @@ registers:
     maskType: AudioSwitchEvents
     description: Specifies the active events in the device.
 bitMasks:
-  Channels:
-    description: Specifies the available output channels.
+  AudioChannels:
+    description: Specifies the available audio output channels.
     bits:
       Channel0: 0x1
       Channel1: 0x2
