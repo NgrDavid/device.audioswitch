@@ -39,7 +39,7 @@ namespace Harp.AudioSwitch
         {
             { 32, typeof(ControlMode) },
             { 33, typeof(EnableChannels) },
-            { 34, typeof(DigitalInputsState) },
+            { 34, typeof(DigitalInputState) },
             { 35, typeof(DO0State) },
             { 37, typeof(DI4Trigger) },
             { 38, typeof(DO0Sync) },
@@ -74,14 +74,14 @@ namespace Harp.AudioSwitch
     /// </summary>
     /// <seealso cref="ControlMode"/>
     /// <seealso cref="EnableChannels"/>
-    /// <seealso cref="DigitalInputsState"/>
+    /// <seealso cref="DigitalInputState"/>
     /// <seealso cref="DO0State"/>
     /// <seealso cref="DI4Trigger"/>
     /// <seealso cref="DO0Sync"/>
     /// <seealso cref="EnableEvents"/>
     [XmlInclude(typeof(ControlMode))]
     [XmlInclude(typeof(EnableChannels))]
-    [XmlInclude(typeof(DigitalInputsState))]
+    [XmlInclude(typeof(DigitalInputState))]
     [XmlInclude(typeof(DO0State))]
     [XmlInclude(typeof(DI4Trigger))]
     [XmlInclude(typeof(DO0Sync))]
@@ -109,21 +109,21 @@ namespace Harp.AudioSwitch
     /// </summary>
     /// <seealso cref="ControlMode"/>
     /// <seealso cref="EnableChannels"/>
-    /// <seealso cref="DigitalInputsState"/>
+    /// <seealso cref="DigitalInputState"/>
     /// <seealso cref="DO0State"/>
     /// <seealso cref="DI4Trigger"/>
     /// <seealso cref="DO0Sync"/>
     /// <seealso cref="EnableEvents"/>
     [XmlInclude(typeof(ControlMode))]
     [XmlInclude(typeof(EnableChannels))]
-    [XmlInclude(typeof(DigitalInputsState))]
+    [XmlInclude(typeof(DigitalInputState))]
     [XmlInclude(typeof(DO0State))]
     [XmlInclude(typeof(DI4Trigger))]
     [XmlInclude(typeof(DO0Sync))]
     [XmlInclude(typeof(EnableEvents))]
     [XmlInclude(typeof(TimestampedControlMode))]
     [XmlInclude(typeof(TimestampedEnableChannels))]
-    [XmlInclude(typeof(TimestampedDigitalInputsState))]
+    [XmlInclude(typeof(TimestampedDigitalInputState))]
     [XmlInclude(typeof(TimestampedDO0State))]
     [XmlInclude(typeof(TimestampedDI4Trigger))]
     [XmlInclude(typeof(TimestampedDO0Sync))]
@@ -148,14 +148,14 @@ namespace Harp.AudioSwitch
     /// </summary>
     /// <seealso cref="ControlMode"/>
     /// <seealso cref="EnableChannels"/>
-    /// <seealso cref="DigitalInputsState"/>
+    /// <seealso cref="DigitalInputState"/>
     /// <seealso cref="DO0State"/>
     /// <seealso cref="DI4Trigger"/>
     /// <seealso cref="DO0Sync"/>
     /// <seealso cref="EnableEvents"/>
     [XmlInclude(typeof(ControlMode))]
     [XmlInclude(typeof(EnableChannels))]
-    [XmlInclude(typeof(DigitalInputsState))]
+    [XmlInclude(typeof(DigitalInputState))]
     [XmlInclude(typeof(DO0State))]
     [XmlInclude(typeof(DI4Trigger))]
     [XmlInclude(typeof(DO0Sync))]
@@ -272,9 +272,9 @@ namespace Harp.AudioSwitch
     }
 
     /// <summary>
-    /// Represents a register that enables the output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
+    /// Represents a register that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
     /// </summary>
-    [Description("Enables the output channels using a bitmask format. An event will be emitted when any of the channels are enabled.")]
+    [Description("Enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.")]
     public partial class EnableChannels
     {
         /// <summary>
@@ -297,9 +297,9 @@ namespace Harp.AudioSwitch
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the message payload.</returns>
-        public static ushort GetPayload(HarpMessage message)
+        public static AudioChannels GetPayload(HarpMessage message)
         {
-            return message.GetPayloadUInt16();
+            return (AudioChannels)message.GetPayloadUInt16();
         }
 
         /// <summary>
@@ -307,9 +307,10 @@ namespace Harp.AudioSwitch
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the timestamped message payload.</returns>
-        public static Timestamped<ushort> GetTimestampedPayload(HarpMessage message)
+        public static Timestamped<AudioChannels> GetTimestampedPayload(HarpMessage message)
         {
-            return message.GetTimestampedPayloadUInt16();
+            var payload = message.GetTimestampedPayloadUInt16();
+            return Timestamped.Create((AudioChannels)payload.Value, payload.Seconds);
         }
 
         /// <summary>
@@ -321,9 +322,9 @@ namespace Harp.AudioSwitch
         /// A <see cref="HarpMessage"/> object for the <see cref="EnableChannels"/> register
         /// with the specified message type and payload.
         /// </returns>
-        public static HarpMessage FromPayload(MessageType messageType, ushort value)
+        public static HarpMessage FromPayload(MessageType messageType, AudioChannels value)
         {
-            return HarpMessage.FromUInt16(Address, messageType, value);
+            return HarpMessage.FromUInt16(Address, messageType, (ushort)value);
         }
 
         /// <summary>
@@ -337,9 +338,9 @@ namespace Harp.AudioSwitch
         /// A <see cref="HarpMessage"/> object for the <see cref="EnableChannels"/> register
         /// with the specified message type, timestamp, and payload.
         /// </returns>
-        public static HarpMessage FromPayload(double timestamp, MessageType messageType, ushort value)
+        public static HarpMessage FromPayload(double timestamp, MessageType messageType, AudioChannels value)
         {
-            return HarpMessage.FromUInt16(Address, timestamp, messageType, value);
+            return HarpMessage.FromUInt16(Address, timestamp, messageType, (ushort)value);
         }
     }
 
@@ -361,7 +362,7 @@ namespace Harp.AudioSwitch
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the timestamped message payload.</returns>
-        public static Timestamped<ushort> GetPayload(HarpMessage message)
+        public static Timestamped<AudioChannels> GetPayload(HarpMessage message)
         {
             return EnableChannels.GetTimestampedPayload(message);
         }
@@ -371,25 +372,25 @@ namespace Harp.AudioSwitch
     /// Represents a register that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.
     /// </summary>
     [Description("State of the digital input pins. An event will be emitted when the value of any digital input pin changes.")]
-    public partial class DigitalInputsState
+    public partial class DigitalInputState
     {
         /// <summary>
-        /// Represents the address of the <see cref="DigitalInputsState"/> register. This field is constant.
+        /// Represents the address of the <see cref="DigitalInputState"/> register. This field is constant.
         /// </summary>
         public const int Address = 34;
 
         /// <summary>
-        /// Represents the payload type of the <see cref="DigitalInputsState"/> register. This field is constant.
+        /// Represents the payload type of the <see cref="DigitalInputState"/> register. This field is constant.
         /// </summary>
         public const PayloadType RegisterType = PayloadType.U8;
 
         /// <summary>
-        /// Represents the length of the <see cref="DigitalInputsState"/> register. This field is constant.
+        /// Represents the length of the <see cref="DigitalInputState"/> register. This field is constant.
         /// </summary>
         public const int RegisterLength = 1;
 
         /// <summary>
-        /// Returns the payload data for <see cref="DigitalInputsState"/> register messages.
+        /// Returns the payload data for <see cref="DigitalInputState"/> register messages.
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the message payload.</returns>
@@ -399,7 +400,7 @@ namespace Harp.AudioSwitch
         }
 
         /// <summary>
-        /// Returns the timestamped payload data for <see cref="DigitalInputsState"/> register messages.
+        /// Returns the timestamped payload data for <see cref="DigitalInputState"/> register messages.
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the timestamped message payload.</returns>
@@ -410,12 +411,12 @@ namespace Harp.AudioSwitch
         }
 
         /// <summary>
-        /// Returns a Harp message for the <see cref="DigitalInputsState"/> register.
+        /// Returns a Harp message for the <see cref="DigitalInputState"/> register.
         /// </summary>
         /// <param name="messageType">The type of the Harp message.</param>
         /// <param name="value">The value to be stored in the message payload.</param>
         /// <returns>
-        /// A <see cref="HarpMessage"/> object for the <see cref="DigitalInputsState"/> register
+        /// A <see cref="HarpMessage"/> object for the <see cref="DigitalInputState"/> register
         /// with the specified message type and payload.
         /// </returns>
         public static HarpMessage FromPayload(MessageType messageType, DigitalInputs value)
@@ -424,14 +425,14 @@ namespace Harp.AudioSwitch
         }
 
         /// <summary>
-        /// Returns a timestamped Harp message for the <see cref="DigitalInputsState"/>
+        /// Returns a timestamped Harp message for the <see cref="DigitalInputState"/>
         /// register.
         /// </summary>
         /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
         /// <param name="messageType">The type of the Harp message.</param>
         /// <param name="value">The value to be stored in the message payload.</param>
         /// <returns>
-        /// A <see cref="HarpMessage"/> object for the <see cref="DigitalInputsState"/> register
+        /// A <see cref="HarpMessage"/> object for the <see cref="DigitalInputState"/> register
         /// with the specified message type, timestamp, and payload.
         /// </returns>
         public static HarpMessage FromPayload(double timestamp, MessageType messageType, DigitalInputs value)
@@ -442,25 +443,25 @@ namespace Harp.AudioSwitch
 
     /// <summary>
     /// Provides methods for manipulating timestamped messages from the
-    /// DigitalInputsState register.
+    /// DigitalInputState register.
     /// </summary>
-    /// <seealso cref="DigitalInputsState"/>
-    [Description("Filters and selects timestamped messages from the DigitalInputsState register.")]
-    public partial class TimestampedDigitalInputsState
+    /// <seealso cref="DigitalInputState"/>
+    [Description("Filters and selects timestamped messages from the DigitalInputState register.")]
+    public partial class TimestampedDigitalInputState
     {
         /// <summary>
-        /// Represents the address of the <see cref="DigitalInputsState"/> register. This field is constant.
+        /// Represents the address of the <see cref="DigitalInputState"/> register. This field is constant.
         /// </summary>
-        public const int Address = DigitalInputsState.Address;
+        public const int Address = DigitalInputState.Address;
 
         /// <summary>
-        /// Returns timestamped payload data for <see cref="DigitalInputsState"/> register messages.
+        /// Returns timestamped payload data for <see cref="DigitalInputState"/> register messages.
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the timestamped message payload.</returns>
         public static Timestamped<DigitalInputs> GetPayload(HarpMessage message)
         {
-            return DigitalInputsState.GetTimestampedPayload(message);
+            return DigitalInputState.GetTimestampedPayload(message);
         }
     }
 
@@ -490,9 +491,9 @@ namespace Harp.AudioSwitch
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the message payload.</returns>
-        public static DigitalState GetPayload(HarpMessage message)
+        public static EnableFlag GetPayload(HarpMessage message)
         {
-            return (DigitalState)message.GetPayloadByte();
+            return (EnableFlag)message.GetPayloadByte();
         }
 
         /// <summary>
@@ -500,10 +501,10 @@ namespace Harp.AudioSwitch
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the timestamped message payload.</returns>
-        public static Timestamped<DigitalState> GetTimestampedPayload(HarpMessage message)
+        public static Timestamped<EnableFlag> GetTimestampedPayload(HarpMessage message)
         {
             var payload = message.GetTimestampedPayloadByte();
-            return Timestamped.Create((DigitalState)payload.Value, payload.Seconds);
+            return Timestamped.Create((EnableFlag)payload.Value, payload.Seconds);
         }
 
         /// <summary>
@@ -515,7 +516,7 @@ namespace Harp.AudioSwitch
         /// A <see cref="HarpMessage"/> object for the <see cref="DO0State"/> register
         /// with the specified message type and payload.
         /// </returns>
-        public static HarpMessage FromPayload(MessageType messageType, DigitalState value)
+        public static HarpMessage FromPayload(MessageType messageType, EnableFlag value)
         {
             return HarpMessage.FromByte(Address, messageType, (byte)value);
         }
@@ -531,7 +532,7 @@ namespace Harp.AudioSwitch
         /// A <see cref="HarpMessage"/> object for the <see cref="DO0State"/> register
         /// with the specified message type, timestamp, and payload.
         /// </returns>
-        public static HarpMessage FromPayload(double timestamp, MessageType messageType, DigitalState value)
+        public static HarpMessage FromPayload(double timestamp, MessageType messageType, EnableFlag value)
         {
             return HarpMessage.FromByte(Address, timestamp, messageType, (byte)value);
         }
@@ -555,7 +556,7 @@ namespace Harp.AudioSwitch
         /// </summary>
         /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
         /// <returns>A value representing the timestamped message payload.</returns>
-        public static Timestamped<DigitalState> GetPayload(HarpMessage message)
+        public static Timestamped<EnableFlag> GetPayload(HarpMessage message)
         {
             return DO0State.GetTimestampedPayload(message);
         }
@@ -858,14 +859,14 @@ namespace Harp.AudioSwitch
     /// </summary>
     /// <seealso cref="CreateControlModePayload"/>
     /// <seealso cref="CreateEnableChannelsPayload"/>
-    /// <seealso cref="CreateDigitalInputsStatePayload"/>
+    /// <seealso cref="CreateDigitalInputStatePayload"/>
     /// <seealso cref="CreateDO0StatePayload"/>
     /// <seealso cref="CreateDI4TriggerPayload"/>
     /// <seealso cref="CreateDO0SyncPayload"/>
     /// <seealso cref="CreateEnableEventsPayload"/>
     [XmlInclude(typeof(CreateControlModePayload))]
     [XmlInclude(typeof(CreateEnableChannelsPayload))]
-    [XmlInclude(typeof(CreateDigitalInputsStatePayload))]
+    [XmlInclude(typeof(CreateDigitalInputStatePayload))]
     [XmlInclude(typeof(CreateDO0StatePayload))]
     [XmlInclude(typeof(CreateDI4TriggerPayload))]
     [XmlInclude(typeof(CreateDO0SyncPayload))]
@@ -934,22 +935,22 @@ namespace Harp.AudioSwitch
 
     /// <summary>
     /// Represents an operator that creates a sequence of message payloads
-    /// that enables the output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
+    /// that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
     /// </summary>
     [DisplayName("EnableChannelsPayload")]
     [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that enables the output channels using a bitmask format. An event will be emitted when any of the channels are enabled.")]
+    [Description("Creates a sequence of message payloads that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.")]
     public partial class CreateEnableChannelsPayload : HarpCombinator
     {
         /// <summary>
-        /// Gets or sets the value that enables the output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
+        /// Gets or sets the value that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
         /// </summary>
-        [Description("The value that enables the output channels using a bitmask format. An event will be emitted when any of the channels are enabled.")]
-        public ushort Value { get; set; }
+        [Description("The value that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.")]
+        public AudioChannels Value { get; set; }
 
         /// <summary>
         /// Creates an observable sequence that contains a single message
-        /// that enables the output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
+        /// that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
         /// </summary>
         /// <returns>
         /// A sequence containing a single <see cref="HarpMessage"/> object
@@ -962,7 +963,7 @@ namespace Harp.AudioSwitch
 
         /// <summary>
         /// Creates an observable sequence of message payloads
-        /// that enables the output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
+        /// that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
         /// </summary>
         /// <typeparam name="TSource">
         /// The type of the elements in the <paramref name="source"/> sequence.
@@ -984,10 +985,10 @@ namespace Harp.AudioSwitch
     /// Represents an operator that creates a sequence of message payloads
     /// that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.
     /// </summary>
-    [DisplayName("DigitalInputsStatePayload")]
+    [DisplayName("DigitalInputStatePayload")]
     [WorkflowElementCategory(ElementCategory.Transform)]
     [Description("Creates a sequence of message payloads that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.")]
-    public partial class CreateDigitalInputsStatePayload : HarpCombinator
+    public partial class CreateDigitalInputStatePayload : HarpCombinator
     {
         /// <summary>
         /// Gets or sets the value that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.
@@ -1024,7 +1025,7 @@ namespace Harp.AudioSwitch
         /// </returns>
         public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
         {
-            return source.Select(_ => DigitalInputsState.FromPayload(MessageType, Value));
+            return source.Select(_ => DigitalInputState.FromPayload(MessageType, Value));
         }
     }
 
@@ -1041,7 +1042,7 @@ namespace Harp.AudioSwitch
         /// Gets or sets the value that status of the digital output pin 0.
         /// </summary>
         [Description("The value that status of the digital output pin 0.")]
-        public DigitalState Value { get; set; }
+        public EnableFlag Value { get; set; }
 
         /// <summary>
         /// Creates an observable sequence that contains a single message
@@ -1221,6 +1222,30 @@ namespace Harp.AudioSwitch
     }
 
     /// <summary>
+    /// Specifies the available audio output channels.
+    /// </summary>
+    [Flags]
+    public enum AudioChannels : ushort
+    {
+        Channel0 = 0x1,
+        Channel1 = 0x2,
+        Channel2 = 0x4,
+        Channel3 = 0x8,
+        Channel4 = 0x10,
+        Channel5 = 0x20,
+        Channel6 = 0x40,
+        Channel7 = 0x80,
+        Channel8 = 0x100,
+        Channel9 = 0x200,
+        Channel10 = 0x400,
+        Channel11 = 0x800,
+        Channel12 = 0x1000,
+        Channel13 = 0x2000,
+        Channel14 = 0x4000,
+        Channel15 = 0x8000
+    }
+
+    /// <summary>
     /// Specifies the state of the digital input pins.
     /// </summary>
     [Flags]
@@ -1250,15 +1275,6 @@ namespace Harp.AudioSwitch
     {
         USB = 0,
         DigitalInputs = 1
-    }
-
-    /// <summary>
-    /// The state of a digital pin.
-    /// </summary>
-    public enum DigitalState : byte
-    {
-        Low = 0,
-        High = 1
     }
 
     /// <summary>

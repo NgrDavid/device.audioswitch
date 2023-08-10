@@ -88,7 +88,7 @@ namespace Harp.AudioSwitch
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the register payload.
         /// </returns>
-        public async Task<ushort> ReadEnableChannelsAsync()
+        public async Task<AudioChannels> ReadEnableChannelsAsync()
         {
             var reply = await CommandAsync(HarpCommand.ReadUInt16(EnableChannels.Address));
             return EnableChannels.GetPayload(reply);
@@ -101,7 +101,7 @@ namespace Harp.AudioSwitch
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the timestamped register payload.
         /// </returns>
-        public async Task<Timestamped<ushort>> ReadTimestampedEnableChannelsAsync()
+        public async Task<Timestamped<AudioChannels>> ReadTimestampedEnableChannelsAsync()
         {
             var reply = await CommandAsync(HarpCommand.ReadUInt16(EnableChannels.Address));
             return EnableChannels.GetTimestampedPayload(reply);
@@ -112,36 +112,36 @@ namespace Harp.AudioSwitch
         /// </summary>
         /// <param name="value">The value to be stored in the register.</param>
         /// <returns>The task object representing the asynchronous write operation.</returns>
-        public async Task WriteEnableChannelsAsync(ushort value)
+        public async Task WriteEnableChannelsAsync(AudioChannels value)
         {
             var request = EnableChannels.FromPayload(MessageType.Write, value);
             await CommandAsync(request);
         }
 
         /// <summary>
-        /// Asynchronously reads the contents of the DigitalInputsState register.
+        /// Asynchronously reads the contents of the DigitalInputState register.
         /// </summary>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the register payload.
         /// </returns>
-        public async Task<DigitalInputs> ReadDigitalInputsStateAsync()
+        public async Task<DigitalInputs> ReadDigitalInputStateAsync()
         {
-            var reply = await CommandAsync(HarpCommand.ReadByte(DigitalInputsState.Address));
-            return DigitalInputsState.GetPayload(reply);
+            var reply = await CommandAsync(HarpCommand.ReadByte(DigitalInputState.Address));
+            return DigitalInputState.GetPayload(reply);
         }
 
         /// <summary>
-        /// Asynchronously reads the timestamped contents of the DigitalInputsState register.
+        /// Asynchronously reads the timestamped contents of the DigitalInputState register.
         /// </summary>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the timestamped register payload.
         /// </returns>
-        public async Task<Timestamped<DigitalInputs>> ReadTimestampedDigitalInputsStateAsync()
+        public async Task<Timestamped<DigitalInputs>> ReadTimestampedDigitalInputStateAsync()
         {
-            var reply = await CommandAsync(HarpCommand.ReadByte(DigitalInputsState.Address));
-            return DigitalInputsState.GetTimestampedPayload(reply);
+            var reply = await CommandAsync(HarpCommand.ReadByte(DigitalInputState.Address));
+            return DigitalInputState.GetTimestampedPayload(reply);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Harp.AudioSwitch
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the register payload.
         /// </returns>
-        public async Task<DigitalState> ReadDO0StateAsync()
+        public async Task<EnableFlag> ReadDO0StateAsync()
         {
             var reply = await CommandAsync(HarpCommand.ReadByte(DO0State.Address));
             return DO0State.GetPayload(reply);
@@ -164,7 +164,7 @@ namespace Harp.AudioSwitch
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the timestamped register payload.
         /// </returns>
-        public async Task<Timestamped<DigitalState>> ReadTimestampedDO0StateAsync()
+        public async Task<Timestamped<EnableFlag>> ReadTimestampedDO0StateAsync()
         {
             var reply = await CommandAsync(HarpCommand.ReadByte(DO0State.Address));
             return DO0State.GetTimestampedPayload(reply);
@@ -175,7 +175,7 @@ namespace Harp.AudioSwitch
         /// </summary>
         /// <param name="value">The value to be stored in the register.</param>
         /// <returns>The task object representing the asynchronous write operation.</returns>
-        public async Task WriteDO0StateAsync(DigitalState value)
+        public async Task WriteDO0StateAsync(EnableFlag value)
         {
             var request = DO0State.FromPayload(MessageType.Write, value);
             await CommandAsync(request);
