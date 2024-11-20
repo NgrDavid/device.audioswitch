@@ -41,10 +41,46 @@ namespace Harp.AudioSwitch
             { 33, typeof(EnableChannels) },
             { 34, typeof(DigitalInputState) },
             { 35, typeof(DO0State) },
+            { 36, typeof(Reserved0) },
             { 37, typeof(DI4Trigger) },
             { 38, typeof(DO0Sync) },
             { 39, typeof(EnableEvents) }
         };
+
+        /// <summary>
+        /// Gets the contents of the metadata file describing the <see cref="AudioSwitch"/>
+        /// device registers.
+        /// </summary>
+        public static readonly string Metadata = GetDeviceMetadata();
+
+        static string GetDeviceMetadata()
+        {
+            var deviceType = typeof(Device);
+            using var metadataStream = deviceType.Assembly.GetManifestResourceStream($"{deviceType.Namespace}.device.yml");
+            using var streamReader = new System.IO.StreamReader(metadataStream);
+            return streamReader.ReadToEnd();
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that returns the contents of the metadata file
+    /// describing the <see cref="AudioSwitch"/> device registers.
+    /// </summary>
+    [Description("Returns the contents of the metadata file describing the AudioSwitch device registers.")]
+    public partial class GetMetadata : Source<string>
+    {
+        /// <summary>
+        /// Returns an observable sequence with the contents of the metadata file
+        /// describing the <see cref="AudioSwitch"/> device registers.
+        /// </summary>
+        /// <returns>
+        /// A sequence with a single <see cref="string"/> object representing the
+        /// contents of the metadata file.
+        /// </returns>
+        public override IObservable<string> Generate()
+        {
+            return Observable.Return(Device.Metadata);
+        }
     }
 
     /// <summary>
@@ -87,12 +123,12 @@ namespace Harp.AudioSwitch
     [XmlInclude(typeof(DO0Sync))]
     [XmlInclude(typeof(EnableEvents))]
     [Description("Filters register-specific messages reported by the AudioSwitch device.")]
-    public class FilterMessage : FilterMessageBuilder, INamedElement
+    public class FilterRegister : FilterRegisterBuilder, INamedElement
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="FilterMessage"/> class.
+        /// Initializes a new instance of the <see cref="FilterRegister"/> class.
         /// </summary>
-        public FilterMessage()
+        public FilterRegister()
         {
             Register = new ControlMode();
         }
@@ -563,6 +599,28 @@ namespace Harp.AudioSwitch
     }
 
     /// <summary>
+    /// Represents a register that reserved for future use.
+    /// </summary>
+    [Description("Reserved for future use.")]
+    internal partial class Reserved0
+    {
+        /// <summary>
+        /// Represents the address of the <see cref="Reserved0"/> register. This field is constant.
+        /// </summary>
+        public const int Address = 36;
+
+        /// <summary>
+        /// Represents the payload type of the <see cref="Reserved0"/> register. This field is constant.
+        /// </summary>
+        public const PayloadType RegisterType = PayloadType.U8;
+
+        /// <summary>
+        /// Represents the length of the <see cref="Reserved0"/> register. This field is constant.
+        /// </summary>
+        public const int RegisterLength = 1;
+    }
+
+    /// <summary>
     /// Represents a register that configuration of the digital input pin 4 functionality.
     /// </summary>
     [Description("Configuration of the digital input pin 4 functionality.")]
@@ -871,6 +929,13 @@ namespace Harp.AudioSwitch
     [XmlInclude(typeof(CreateDI4TriggerPayload))]
     [XmlInclude(typeof(CreateDO0SyncPayload))]
     [XmlInclude(typeof(CreateEnableEventsPayload))]
+    [XmlInclude(typeof(CreateTimestampedControlModePayload))]
+    [XmlInclude(typeof(CreateTimestampedEnableChannelsPayload))]
+    [XmlInclude(typeof(CreateTimestampedDigitalInputStatePayload))]
+    [XmlInclude(typeof(CreateTimestampedDO0StatePayload))]
+    [XmlInclude(typeof(CreateTimestampedDI4TriggerPayload))]
+    [XmlInclude(typeof(CreateTimestampedDO0SyncPayload))]
+    [XmlInclude(typeof(CreateTimestampedEnableEventsPayload))]
     [Description("Creates standard message payloads for the AudioSwitch device.")]
     public partial class CreateMessage : CreateMessageBuilder, INamedElement
     {
@@ -886,338 +951,380 @@ namespace Harp.AudioSwitch
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a message payload
     /// that configures the source to enable the board channels.
     /// </summary>
     [DisplayName("ControlModePayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that configures the source to enable the board channels.")]
-    public partial class CreateControlModePayload : HarpCombinator
+    [Description("Creates a message payload that configures the source to enable the board channels.")]
+    public partial class CreateControlModePayload
     {
         /// <summary>
         /// Gets or sets the value that configures the source to enable the board channels.
         /// </summary>
         [Description("The value that configures the source to enable the board channels.")]
-        public ControlSource Value { get; set; }
+        public ControlSource ControlMode { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that configures the source to enable the board channels.
+        /// Creates a message payload for the ControlMode register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public ControlSource GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return ControlMode;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that configures the source to enable the board channels.
+        /// Creates a message that configures the source to enable the board channels.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the ControlMode register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => ControlMode.FromPayload(MessageType, Value));
+            return Harp.AudioSwitch.ControlMode.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that configures the source to enable the board channels.
+    /// </summary>
+    [DisplayName("TimestampedControlModePayload")]
+    [Description("Creates a timestamped message payload that configures the source to enable the board channels.")]
+    public partial class CreateTimestampedControlModePayload : CreateControlModePayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that configures the source to enable the board channels.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the ControlMode register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Harp.AudioSwitch.ControlMode.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
     /// </summary>
     [DisplayName("EnableChannelsPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.")]
-    public partial class CreateEnableChannelsPayload : HarpCombinator
+    [Description("Creates a message payload that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.")]
+    public partial class CreateEnableChannelsPayload
     {
         /// <summary>
         /// Gets or sets the value that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
         /// </summary>
         [Description("The value that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.")]
-        public AudioChannels Value { get; set; }
+        public AudioChannels EnableChannels { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
+        /// Creates a message payload for the EnableChannels register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public AudioChannels GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return EnableChannels;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
+        /// Creates a message that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the EnableChannels register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => EnableChannels.FromPayload(MessageType, Value));
+            return Harp.AudioSwitch.EnableChannels.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
+    /// </summary>
+    [DisplayName("TimestampedEnableChannelsPayload")]
+    [Description("Creates a timestamped message payload that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.")]
+    public partial class CreateTimestampedEnableChannelsPayload : CreateEnableChannelsPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that enables the audio output channels using a bitmask format. An event will be emitted when any of the channels are enabled.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the EnableChannels register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Harp.AudioSwitch.EnableChannels.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.
     /// </summary>
     [DisplayName("DigitalInputStatePayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.")]
-    public partial class CreateDigitalInputStatePayload : HarpCombinator
+    [Description("Creates a message payload that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.")]
+    public partial class CreateDigitalInputStatePayload
     {
         /// <summary>
         /// Gets or sets the value that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.
         /// </summary>
         [Description("The value that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.")]
-        public DigitalInputs Value { get; set; }
+        public DigitalInputs DigitalInputState { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.
+        /// Creates a message payload for the DigitalInputState register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public DigitalInputs GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return DigitalInputState;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.
+        /// Creates a message that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the DigitalInputState register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => DigitalInputState.FromPayload(MessageType, Value));
+            return Harp.AudioSwitch.DigitalInputState.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.
+    /// </summary>
+    [DisplayName("TimestampedDigitalInputStatePayload")]
+    [Description("Creates a timestamped message payload that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.")]
+    public partial class CreateTimestampedDigitalInputStatePayload : CreateDigitalInputStatePayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that state of the digital input pins. An event will be emitted when the value of any digital input pin changes.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the DigitalInputState register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Harp.AudioSwitch.DigitalInputState.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that status of the digital output pin 0.
     /// </summary>
     [DisplayName("DO0StatePayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that status of the digital output pin 0.")]
-    public partial class CreateDO0StatePayload : HarpCombinator
+    [Description("Creates a message payload that status of the digital output pin 0.")]
+    public partial class CreateDO0StatePayload
     {
         /// <summary>
         /// Gets or sets the value that status of the digital output pin 0.
         /// </summary>
         [Description("The value that status of the digital output pin 0.")]
-        public EnableFlag Value { get; set; }
+        public EnableFlag DO0State { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that status of the digital output pin 0.
+        /// Creates a message payload for the DO0State register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public EnableFlag GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return DO0State;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that status of the digital output pin 0.
+        /// Creates a message that status of the digital output pin 0.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the DO0State register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => DO0State.FromPayload(MessageType, Value));
+            return Harp.AudioSwitch.DO0State.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that status of the digital output pin 0.
+    /// </summary>
+    [DisplayName("TimestampedDO0StatePayload")]
+    [Description("Creates a timestamped message payload that status of the digital output pin 0.")]
+    public partial class CreateTimestampedDO0StatePayload : CreateDO0StatePayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that status of the digital output pin 0.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the DO0State register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Harp.AudioSwitch.DO0State.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that configuration of the digital input pin 4 functionality.
     /// </summary>
     [DisplayName("DI4TriggerPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that configuration of the digital input pin 4 functionality.")]
-    public partial class CreateDI4TriggerPayload : HarpCombinator
+    [Description("Creates a message payload that configuration of the digital input pin 4 functionality.")]
+    public partial class CreateDI4TriggerPayload
     {
         /// <summary>
         /// Gets or sets the value that configuration of the digital input pin 4 functionality.
         /// </summary>
         [Description("The value that configuration of the digital input pin 4 functionality.")]
-        public DI4TriggerConfig Value { get; set; }
+        public DI4TriggerConfig DI4Trigger { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that configuration of the digital input pin 4 functionality.
+        /// Creates a message payload for the DI4Trigger register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public DI4TriggerConfig GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return DI4Trigger;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that configuration of the digital input pin 4 functionality.
+        /// Creates a message that configuration of the digital input pin 4 functionality.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the DI4Trigger register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => DI4Trigger.FromPayload(MessageType, Value));
+            return Harp.AudioSwitch.DI4Trigger.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that configuration of the digital input pin 4 functionality.
+    /// </summary>
+    [DisplayName("TimestampedDI4TriggerPayload")]
+    [Description("Creates a timestamped message payload that configuration of the digital input pin 4 functionality.")]
+    public partial class CreateTimestampedDI4TriggerPayload : CreateDI4TriggerPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that configuration of the digital input pin 4 functionality.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the DI4Trigger register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Harp.AudioSwitch.DI4Trigger.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that configuration of the digital output pin 0 functionality.
     /// </summary>
     [DisplayName("DO0SyncPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that configuration of the digital output pin 0 functionality.")]
-    public partial class CreateDO0SyncPayload : HarpCombinator
+    [Description("Creates a message payload that configuration of the digital output pin 0 functionality.")]
+    public partial class CreateDO0SyncPayload
     {
         /// <summary>
         /// Gets or sets the value that configuration of the digital output pin 0 functionality.
         /// </summary>
         [Description("The value that configuration of the digital output pin 0 functionality.")]
-        public DO0SyncConfig Value { get; set; }
+        public DO0SyncConfig DO0Sync { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that configuration of the digital output pin 0 functionality.
+        /// Creates a message payload for the DO0Sync register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public DO0SyncConfig GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return DO0Sync;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that configuration of the digital output pin 0 functionality.
+        /// Creates a message that configuration of the digital output pin 0 functionality.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the DO0Sync register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => DO0Sync.FromPayload(MessageType, Value));
+            return Harp.AudioSwitch.DO0Sync.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that configuration of the digital output pin 0 functionality.
+    /// </summary>
+    [DisplayName("TimestampedDO0SyncPayload")]
+    [Description("Creates a timestamped message payload that configuration of the digital output pin 0 functionality.")]
+    public partial class CreateTimestampedDO0SyncPayload : CreateDO0SyncPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that configuration of the digital output pin 0 functionality.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the DO0Sync register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Harp.AudioSwitch.DO0Sync.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that specifies the active events in the device.
     /// </summary>
     [DisplayName("EnableEventsPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that specifies the active events in the device.")]
-    public partial class CreateEnableEventsPayload : HarpCombinator
+    [Description("Creates a message payload that specifies the active events in the device.")]
+    public partial class CreateEnableEventsPayload
     {
         /// <summary>
         /// Gets or sets the value that specifies the active events in the device.
         /// </summary>
         [Description("The value that specifies the active events in the device.")]
-        public AudioSwitchEvents Value { get; set; }
+        public AudioSwitchEvents EnableEvents { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that specifies the active events in the device.
+        /// Creates a message payload for the EnableEvents register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public AudioSwitchEvents GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return EnableEvents;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that specifies the active events in the device.
+        /// Creates a message that specifies the active events in the device.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the EnableEvents register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => EnableEvents.FromPayload(MessageType, Value));
+            return Harp.AudioSwitch.EnableEvents.FromPayload(messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a timestamped message payload
+    /// that specifies the active events in the device.
+    /// </summary>
+    [DisplayName("TimestampedEnableEventsPayload")]
+    [Description("Creates a timestamped message payload that specifies the active events in the device.")]
+    public partial class CreateTimestampedEnableEventsPayload : CreateEnableEventsPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that specifies the active events in the device.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the EnableEvents register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Harp.AudioSwitch.EnableEvents.FromPayload(timestamp, messageType, GetPayload());
         }
     }
 
@@ -1227,6 +1334,7 @@ namespace Harp.AudioSwitch
     [Flags]
     public enum AudioChannels : ushort
     {
+        None = 0x0,
         Channel0 = 0x1,
         Channel1 = 0x2,
         Channel2 = 0x4,
@@ -1251,6 +1359,7 @@ namespace Harp.AudioSwitch
     [Flags]
     public enum DigitalInputs : byte
     {
+        None = 0x0,
         DI0 = 0x1,
         DI1 = 0x2,
         DI2 = 0x4,
@@ -1264,6 +1373,7 @@ namespace Harp.AudioSwitch
     [Flags]
     public enum AudioSwitchEvents : byte
     {
+        None = 0x0,
         EnableChannels = 0x1,
         DigitalInputsState = 0x2
     }
