@@ -6,3 +6,6 @@ desktop.ini
 *.atsuo
 *.o
 *.d
+.vs/
+bin/
+obj/
